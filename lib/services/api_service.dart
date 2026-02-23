@@ -1,21 +1,17 @@
-import 'dart:convert';
-
-import 'package:flutter_application_1/models/product.dart';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/product.dart';
 
 class ApiService {
-  final String url = 'https://dummyjson.com/products';
+  final supabase = Supabase.instance.client;
 
   Future<List<Product>> getProducts() async {
-    final response = await http.get(Uri.parse(url));
-    final data = jsonDecode(response.body);
+    final response = await supabase
+        .from('products')
+        .select()
+        .order('created_at', ascending: false);
 
-    List<Product> productsList = [];
-
-    for (var item in data['products']) {
-      productsList.add(Product.fromJson(item));
-    }
-
-    return productsList;
+    return (response as List)
+        .map((item) => Product.fromJson(item))
+        .toList();
   }
 }
